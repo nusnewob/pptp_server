@@ -46,21 +46,26 @@ template "/etc/ppp/chap-secrets" do
   mode "0600"
 end
 
-# let pptp client can use network
-execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
-  not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
+# fix mtu issue
+execute "echo 'mtu #{node[:pptpd][:mtu]}' >> /etc/ppp/options" do
+  not_if "grep ^mtu /etc/ppp/options"
 end
 
 execute "service pptpd restart"
 
 
-execute "restart service" do
-  command "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save && sysctl -p"
+execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
+  not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
 end
 
 execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
   not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
 end
+
+execute "set route" do
+  command "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save && sysctl -p"
+end
+
 
 # presist it
 # TODO: it will break rc.local
@@ -73,9 +78,5 @@ template "/etc/rc.local" do
 end
 
 
-# fix mtu issue
-execute 'echo "mtu #{node[:pptpd][:mtu]}" >> /etc/ppp/options' do
-  not_if "grep ^mtu /etc/ppp/options"
-end
 
 

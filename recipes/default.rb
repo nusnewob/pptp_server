@@ -37,6 +37,14 @@ template "/etc/ppp/pptpd-options" do
   mode "0600"
 end
 
+users = \
+if node[:pptpd][:use_databag] == true
+  node[:pptpd][:users].map do |id|
+    search(:pptp_users, "id:#{id}").first
+  end
+else
+  node[:pptpd][:users]
+end
 
 template "/etc/ppp/chap-secrets" do
   source "chap-secrets.erb"
@@ -44,6 +52,7 @@ template "/etc/ppp/chap-secrets" do
   owner "root"
   group "root"
   mode "0600"
+  variables users: users
 end
 
 # fix mtu issue

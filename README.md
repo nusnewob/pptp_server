@@ -35,6 +35,30 @@ Add this to node:
 }
 ```
 
+If you want to use data bag for user account, please use:
+
+```
+{
+  ...
+  "use_databag": true,
+  "users": [
+    "vpnuser1",
+    "vpnuser2"
+  ],
+  ...
+}
+```
+
+cookbook will check databag `pptp_users/vpnuser1.json`:
+
+```
+{
+  "id": "vpnuser1",
+  "username": "vpnuser1",
+  "password": "password"
+}
+```
+
 Then include `recipe[pptp_server]` to run_list.
 
 

@@ -62,6 +62,7 @@ template "/etc/ppp/chap-secrets" do
   notifies :restart, 'service[pptpd]', :delayed
 end
 
+include_recipe 'sysctl::default'
 sysctl_param 'net.ipv4.ip_forward' do
   value 1
   action :apply

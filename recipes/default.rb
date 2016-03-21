@@ -68,7 +68,7 @@ sysctl_param 'net.ipv4.ip_forward' do
   action :apply
 end
 
-iptables_rule 'POSTROUTING' do
+iptables_rule 'pptp-iptables' do
   action :enable
 end
 

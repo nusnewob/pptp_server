@@ -71,3 +71,7 @@ end
 iptables_rule 'POSTROUTING' do
   action :enable
 end
+
+modules 'ppp_mppe' do
+  action :load
+end

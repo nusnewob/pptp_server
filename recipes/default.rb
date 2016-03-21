@@ -71,21 +71,6 @@ execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
   not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
 end
 
-execute "set route" do
-  command "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save && sysctl -p"
+iptables_rule 'POSTROUTING' do
+  action :enable
 end
-
-
-# presist it
-# TODO: it will break rc.local
-template "/etc/rc.local" do
-  source "rc.local.erb"
-  owner "root"
-  group "root"
-  mode "0755"
-  not_if "grep '^iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE' /etc/rc.local"
-end
-
-
-
-

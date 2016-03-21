@@ -20,6 +20,11 @@ package "pptpd" do
   action :install
 end
 
+service 'pptpd' do
+  supports :status => true, :restart => true
+  action [ :enable, :start ]
+end
+
 template "/etc/pptpd.conf" do
   source "pptpd.conf.erb"
   owner "root"

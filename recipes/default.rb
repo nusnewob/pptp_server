@@ -75,3 +75,7 @@ end
 modules 'ppp_mppe' do
   action :load
 end
+
+modules 'ppp-compress-18' do
+  action :load
+end

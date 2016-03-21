@@ -97,3 +97,8 @@ nobsdcomp
 
 # MTU
 mtu <%= node['pptpd']['mtu'] %>
+
+<% if node['pptpd']['enable_radius'] -%>
+plugin radius.so
+plugin radattr.so
+<% end -%>

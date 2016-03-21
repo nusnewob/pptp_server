@@ -24,26 +24,25 @@ template "/etc/pptpd.conf" do
   source "pptpd.conf.erb"
   owner "root"
   group "root"
-  variables :localip => node[:pptpd][:localip], :remoteip => node[:pptpd][:remoteip]
+  variables({
+    :localip => node['pptpd']['localip'],
+    :remoteip => node['pptpd']['remoteip']
+  })
   mode "0664"
+  notifies :restart, 'service[pptpd]', :delayed
 end
 
 template "/etc/ppp/pptpd-options" do
   not_if "grep ^ms-dns\  /etc/ppp/pptpd-options"
   source "pptpd-options.erb"
-  variables :first_dns => node[:pptpd][:first_dns], :second_dns => node[:pptpd][:second_dns]
+  variables({
+    :first_dns => node['pptpd']['first_dns'],
+    :second_dns => node['pptpd']['second_dns']
+  })
   owner "root"
   group "root"
   mode "0600"
-end
-
-users = \
-if node[:pptpd][:use_databag] == true
-  node[:pptpd][:users].map do |id|
-    search(:pptp_users, "id:#{id}").first
-  end
-else
-  node[:pptpd][:users]
+  notifies :restart, 'service[pptpd]', :delayed
 end
 
 template "/etc/ppp/chap-secrets" do
@@ -52,23 +51,15 @@ template "/etc/ppp/chap-secrets" do
   owner "root"
   group "root"
   mode "0600"
-  variables users: users
+  variables({
+    :users => node['pptpd']['users']
+  })
+  notifies :restart, 'service[pptpd]', :delayed
 end
 
-# fix mtu issue
-execute "echo 'mtu #{node[:pptpd][:mtu]}' >> /etc/ppp/options" do
-  not_if "grep ^mtu /etc/ppp/options"
-end
-
-execute "service pptpd restart"
-
-
-execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
-  not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
-end
-
-execute 'echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf' do
-  not_if "grep ^net.ipv4.ip_forward= /etc/sysctl.conf"
+sysctl_param 'net.ipv4.ip_forward' do
+  value 1
+  action :apply
 end
 
 iptables_rule 'POSTROUTING' do

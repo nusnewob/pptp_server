@@ -38,7 +38,6 @@ template "/etc/pptpd.conf" do
 end
 
 template "/etc/ppp/pptpd-options" do
-  not_if "grep ^ms-dns\  /etc/ppp/pptpd-options"
   source "pptpd-options.erb"
   variables({
     :first_dns => node['pptpd']['first_dns'],
@@ -52,7 +51,6 @@ end
 
 template "/etc/ppp/chap-secrets" do
   source "chap-secrets.erb"
-  not_if "grep pptpd /etc/ppp/chap-secrets"
   owner "root"
   group "root"
   mode "0600"
@@ -60,6 +58,7 @@ template "/etc/ppp/chap-secrets" do
     :users => node['pptpd']['users']
   })
   notifies :restart, 'service[pptpd]', :delayed
+  only_if node['pptpd']['use_local_chaps']
 end
 
 include_recipe 'sysctl::default'

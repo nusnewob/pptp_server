@@ -58,7 +58,7 @@ template "/etc/ppp/chap-secrets" do
     :users => node['pptpd']['users']
   })
   notifies :restart, 'service[pptpd]', :delayed
-  only_if node['pptpd']['use_local_chaps']
+  only_if { node['pptpd']['use_local_chaps'] }
 end
 
 include_recipe 'sysctl::default'
